@@ -195,4 +195,3 @@ class TestAccountService(TestCase):
         """It should handle internal server error"""
         resp = self.client.get("/accounts/abc")  # invalid type
         self.assertIn(resp.status_code, [400, 404, 500])
-        
