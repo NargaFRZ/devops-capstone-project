@@ -1,5 +1,7 @@
 # devops-capstone-project
 
+![Build Status](https://github.com/<OWNER>/devops-capstone-project/actions/workflows/ci-build.yaml/badge.svg)
+
 This project is a customer accounts microservice for an e-commerce platform. 
 It provides REST APIs to create, read, update, delete, and list customer accounts.
 
