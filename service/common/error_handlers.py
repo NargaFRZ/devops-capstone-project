@@ -83,11 +83,3 @@ def internal_server_error(error):
         ),
         status.HTTP_500_INTERNAL_SERVER_ERROR,
     )
-
-def test_404_error(self):
-    resp = self.client.get("/not-found")
-    self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
-
-def test_method_not_allowed(self):
-    resp = self.client.delete(BASE_URL)
-    self.assertEqual(resp.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)

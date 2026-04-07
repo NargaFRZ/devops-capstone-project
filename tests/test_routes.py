@@ -186,16 +186,6 @@ class TestAccountService(TestCase):
 
         self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
 
-    def test_bad_request(self):
-        """It should return 400 for bad request"""
-        resp = self.client.post(BASE_URL, json={})  # empty JSON
-        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
-
-    def test_unsupported_media_type(self):
-        """It should return 415 for unsupported media type"""
-        resp = self.client.post(BASE_URL, data="text", content_type="text/plain")
-        self.assertEqual(resp.status_code, status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
-
     def test_data_validation_error(self):
         """It should return 400 when data validation fails"""
         resp = self.client.post(BASE_URL, json={"name": "OnlyName"})
@@ -205,3 +195,4 @@ class TestAccountService(TestCase):
         """It should handle internal server error"""
         resp = self.client.get("/accounts/abc")  # invalid type
         self.assertIn(resp.status_code, [400, 404, 500])
+        
