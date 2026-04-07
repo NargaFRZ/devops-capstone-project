@@ -140,3 +140,68 @@ class TestAccountService(TestCase):
         """It should not Read an Account that is not found"""
         resp = self.client.get(f"{BASE_URL}/0")
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_get_account_list_empty(self):
+        """It should return an empty list"""
+        resp = self.client.get(BASE_URL)
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(resp.get_json(), [])
+
+    def test_update_account_not_found(self):
+        """It should not update a non-existing account"""
+        resp = self.client.put(f"{BASE_URL}/0", json={})
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_delete_account_not_found(self):
+        """It should handle deleting a non-existing account"""
+        resp = self.client.delete(f"{BASE_URL}/0")
+        self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
+
+    def test_update_account_via_post(self):
+        """It should Update an account created via POST"""
+        account = {
+            "name": "Original",
+            "email": "test@test.com",
+            "address": "test address"
+        }
+
+        # create
+        resp = self.client.post(BASE_URL, json=account)
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+
+        data = resp.get_json()
+        data["name"] = "Updated"
+
+        # update
+        resp = self.client.put(f"{BASE_URL}/{data['id']}", json=data)
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(resp.get_json()["name"], "Updated")
+
+    def test_delete_account_twice(self):
+        """It should handle deleting the same account twice"""
+        account = self._create_accounts(1)[0]
+
+        self.client.delete(f"{BASE_URL}/{account.id}")
+        resp = self.client.delete(f"{BASE_URL}/{account.id}")
+
+        self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
+
+    def test_bad_request(self):
+        """It should return 400 for bad request"""
+        resp = self.client.post(BASE_URL, json={})  # empty JSON
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_unsupported_media_type(self):
+        """It should return 415 for unsupported media type"""
+        resp = self.client.post(BASE_URL, data="text", content_type="text/plain")
+        self.assertEqual(resp.status_code, status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
+
+    def test_data_validation_error(self):
+        """It should return 400 when data validation fails"""
+        resp = self.client.post(BASE_URL, json={"name": "OnlyName"})
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_internal_server_error(self):
+        """It should handle internal server error"""
+        resp = self.client.get("/accounts/abc")  # invalid type
+        self.assertIn(resp.status_code, [400, 404, 500])
